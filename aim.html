@@ -3,11 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aim</title>
+    <title>AimTest</title>
   </head>
   <body>
-    <img id="Target" src="Images/Target.PNG" width="200px" height="200px">
-    <button onclick="ShowImage()">Start</button>
+    <div id="scoreHolder">Score: <span id="score"></span></div>
+    <img onclick="TargetHit()" id="Target" src="Images/Target.PNG" width="200px" height="200px">
+    <button onclick="StartGame()">Play</button>
+    <audio id= "deathSound">
+        <source src="Audio/deathSound.mp3" type="audio/mpeg">
+    </audio>
+    <audio id= "axelHallo">
+        <source src="Audio/Axel.mp3" type="audio/mpeg">
+    </audio>
     <table>
         <tr>
         <td id="1"></td>
@@ -28,11 +35,32 @@
         </tr>
     </table>
     </body>
+    
 </html>
 
 <style>
+    #scoreHolder {
+        color:green;
+        text-align: center;
+        font-size: 35px;
+        width: 100px;
+        height: 45px;
+        background-color: red;
+        margin-left: 500px;
+        margin-bottom: 50px;
+        margin-top: 50px;
+    }
+    button {
+        width: 75px;
+        height: 35px;
+        text-align: center;
+        background-color: white;
+        cursor: pointer;
+        font-size: 20px;
+        margin-bottom: 50px;
+    }
     td {
-        border: 1px solid black;
+        border: 0px solid black;
         width: 200px;
         height: 200px;
         text-align: center;
@@ -41,6 +69,9 @@
         width: 600px; 
         height: 600px;
         border-spacing: 0px;
+        border: 1px solid black;
+        background-color: blue;
+        margin-top: -85px;
     }
     #Target {
         display: none;
@@ -48,10 +79,51 @@
 </style>
 
 <script>
-var myVar = setInterval(ShowImage, 1000);
-function ShowImage() {
-    console.log("ShowImage is called");
+
+var deathSound = document.getElementById("deathSound");
+var axelHallo = document.getElementById("axelHallo");
+var pace = 1100;
+var clearVar = -5;
+var score = 0;
+
+function AddScore() {
+    score++;
+    document.getElementById("score").innerHTML = score;
+}
+
+function PlayAudio() {
+    deathSound.play();
+}
+
+function PlayAxel() {
+    axelHallo.play();
+    axelHallo.volume = 0.3;
+}
+
+function TargetHit() {
     HideImage();
+    PlayAudio();
+    // setzt intervall zurück
+    if (clearVar != -5) {
+        clearInterval(clearVar);
+    }
+    pace = pace - 50;
+    clearVar = setInterval(ShowImage, pace);
+    AddScore();
+}
+
+function StartGame() {
+    HideImage()
+    if (clearVar != -5) {
+        clearInterval(clearVar);
+    }
+    pace = pace - 0;
+    clearVar = setInterval(ShowImage, pace);
+}
+
+function ShowImage() {
+    HideImage();
+    PlayAxel();
     var x = Math.floor((Math.random() * 9) + 1);  
     document.getElementById(x).innerHTML = document.getElementById("Target").outerHTML;
     document.getElementById(x).getElementsByTagName( 'img' )[0].style.display = 'block';
@@ -63,5 +135,5 @@ function HideImage() {
         img.style.display = 'none';
     });
 }
-</script>
 
+</script>
