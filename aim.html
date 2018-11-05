@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>AimTest</title>
   </head>
   <body>
     <div id="scoreHolder">Score: <span id="score"></span></div>
-    <img onclick="TargetHit()" id="Target" src="Images/Target.PNG" width="200px" height="200px">
+    <img onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false"  id="Target" src="Images/Target.PNG" width="200px" height="200px">
     <button onclick="StartGame()">Play</button>
     <audio id= "deathSound">
         <source src="Audio/deathSound.mp3" type="audio/mpeg">
@@ -15,7 +16,7 @@
     <audio id= "axelHallo">
         <source src="Audio/Axel.mp3" type="audio/mpeg">
     </audio>
-    <table>
+    <table class="playGround">
         <tr>
         <td id="1"></td>
         <td id="2"></td>
@@ -85,10 +86,34 @@ var axelHallo = document.getElementById("axelHallo");
 var pace = 1100;
 var clearVar = -5;
 var score = 0;
+var x = null;
+var gameStarted = false;
+
+$(".playGround").on("click", "td", function (event) {
+    var clickedCellId = $(this).attr("id");
+    console.log(clickedCellId);
+    console.log(x);
+
+    if (clickedCellId != x && gameStarted == true) {
+        SubScore();
+    } 
+    else {
+        TargetHit();
+    }
+
+});
 
 function AddScore() {
     score++;
-    document.getElementById("score").innerHTML = score;
+    $("#score").html(score);
+}
+
+function SubScore() {
+    //score--;
+    //score = score - 2;
+    score -= 2;
+    $("#score").html(score);
+
 }
 
 function PlayAudio() {
@@ -107,12 +132,13 @@ function TargetHit() {
     if (clearVar != -5) {
         clearInterval(clearVar);
     }
-    pace = pace - 50;
+    pace = pace - 25;
     clearVar = setInterval(ShowImage, pace);
     AddScore();
 }
 
 function StartGame() {
+    gameStarted = true;
     HideImage()
     if (clearVar != -5) {
         clearInterval(clearVar);
@@ -124,7 +150,7 @@ function StartGame() {
 function ShowImage() {
     HideImage();
     PlayAxel();
-    var x = Math.floor((Math.random() * 9) + 1);  
+    x = Math.floor((Math.random() * 9) + 1);  
     document.getElementById(x).innerHTML = document.getElementById("Target").outerHTML;
     document.getElementById(x).getElementsByTagName( 'img' )[0].style.display = 'block';
 }
