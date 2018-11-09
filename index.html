@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.0/dist/sweetalert2.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.29.0/dist/sweetalert2.all.min.js"></script>
     <title>AimTest</title>
   </head>
   <body>
@@ -42,6 +44,10 @@
 </html>
 
 <style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
     .gameOverTxt {
         display: none;
     }
@@ -52,7 +58,6 @@
         font-size: 35px;
         width: 100px;
         height: 45px;
-        background-color: red;
         margin-left: 500px;
         margin-bottom: 50px;
         margin-top: 50px;
@@ -95,6 +100,7 @@ var score = 0;
 var x = null;
 var gameStarted = false;
 var showedImageId = null;
+var highScore = null;
 
 $(".playGround").on("click", "td", function (event) {
     var clickedCellId = $(this).attr("id");
@@ -105,10 +111,7 @@ $(".playGround").on("click", "td", function (event) {
         TargetHit();
     }
     else {
-        SubScore();
-        if (score <= 0) {
-            GameOver();
-        }
+        GameOver();
     }
 
 });
@@ -118,26 +121,34 @@ function GameOver() {
     clearInterval(clearVar);
     pace = 1100;
     clearVar = -5;
-    score = 0;
     x = null;
     gameStarted = false;
     showedImageId = null;
     $("#score").html(score);
 
     $(".gameOverTxt").slideDown(1000);
+
+    if (score > highScore || highScore == null) {
+        highScore = score;
+        swal({
+        title: 'Put in your Username, Highscore is:' + highScore,
+        input: 'text',
+        confirmButtonText: 'Send',
+        showLoaderOnConfirm: true
+        }).then((userName) => {
+            console.log(userName);
+            $.post('http://localhost/Aim-BackEnd/AimDatasaver.php', {
+                'highScore': highScore,
+                'userName': userName['value']
+            });
+        })
+    }
+    score = 0;
 }
 
 function AddScore() {
     score++;
     $("#score").html(score);
-}
-
-function SubScore() {
-    //score--;
-    //score = score - 2;
-    score -= 2;
-    $("#score").html(score);
-
 }
 
 function PlayAudio() {
