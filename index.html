@@ -8,7 +8,8 @@
   </head>
   <body>
     <div id="scoreHolder">Score: <span id="score"></span></div>
-    <img onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false"  id="Target" src="Images/Target.PNG" width="200px" height="200px">
+    <img onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false"  class="Target" data-imageid="1" src="Images/Target.PNG" width="200px" height="200px">
+    <img onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false"  class="Target" data-imageid="2" src="Images/Target_2.PNG" width="200px" height="200px">
     <button onclick="StartGame()">Play</button>
     <audio id= "deathSound">
         <source src="Audio/deathSound.mp3" type="audio/mpeg">
@@ -35,11 +36,16 @@
         <td id="9"></td>
         </tr>
     </table>
+    <h2 class="gameOverTxt"> Game Over </h2>
     </body>
     
 </html>
 
 <style>
+    .gameOverTxt {
+        display: none;
+    }
+
     #scoreHolder {
         color:green;
         text-align: center;
@@ -74,7 +80,7 @@
         background-color: blue;
         margin-top: -85px;
     }
-    #Target {
+    .Target {
         display: none;
     }
 </style>
@@ -88,20 +94,38 @@ var clearVar = -5;
 var score = 0;
 var x = null;
 var gameStarted = false;
+var showedImageId = null;
 
 $(".playGround").on("click", "td", function (event) {
     var clickedCellId = $(this).attr("id");
     console.log(clickedCellId);
     console.log(x);
 
-    if (clickedCellId != x && gameStarted == true) {
-        SubScore();
-    } 
-    else {
+    if (clickedCellId == x && gameStarted == true && showedImageId == 1) {
         TargetHit();
+    }
+    else {
+        SubScore();
+        if (score <= 0) {
+            GameOver();
+        }
     }
 
 });
+
+function GameOver() {
+    console.log('GameOver');
+    clearInterval(clearVar);
+    pace = 1100;
+    clearVar = -5;
+    score = 0;
+    x = null;
+    gameStarted = false;
+    showedImageId = null;
+    $("#score").html(score);
+
+    $(".gameOverTxt").slideDown(1000);
+}
 
 function AddScore() {
     score++;
@@ -126,6 +150,7 @@ function PlayAxel() {
 }
 
 function TargetHit() {
+    console.log("Target");
     HideImage();
     PlayAudio();
     // setzt intervall zurück
@@ -145,17 +170,20 @@ function StartGame() {
     }
     pace = pace - 0;
     clearVar = setInterval(ShowImage, pace);
+    $(".gameOverTxt").hide();
 }
 
 function ShowImage() {
     HideImage();
     PlayAxel();
-    x = Math.floor((Math.random() * 9) + 1);  
-    document.getElementById(x).innerHTML = document.getElementById("Target").outerHTML;
+    x = Math.floor((Math.random() * 9) + 1); 
+    showedImageId =  Math.floor((Math.random() * 2) + 1);
+    document.getElementById(x).innerHTML =  $(".Target[data-imageid='"+ showedImageId +"']")[0].outerHTML; //document.getElementById("Target").outerHTML;
     document.getElementById(x).getElementsByTagName( 'img' )[0].style.display = 'block';
 }
 
 function HideImage() {
+    x = null;
     var allImages = document.getElementsByTagName( 'img' );
     Array.prototype.forEach.call(allImages, function(img) {
         img.style.display = 'none';
