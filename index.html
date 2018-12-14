@@ -38,12 +38,25 @@
         <td id="9"></td>
         </tr>
     </table>
+    <table id="Highscores">
+        <tbody id= "HighscoresBody">
+
+        </tbody>
+    </table>
     <h2 class="gameOverTxt"> Game Over </h2>
     </body>
     
 </html>
 
 <style>
+
+    #Highscores {
+        float: left;
+    }
+
+    #Highscores td {
+        border: 2px solid black;
+    }
     * {
         font-family: Arial, Helvetica, sans-serif;
     }
@@ -56,11 +69,11 @@
         color:green;
         text-align: center;
         font-size: 35px;
-        width: 100px;
-        height: 45px;
-        margin-left: 500px;
+        width: 100%;
+        height: 150px;
         margin-bottom: 50px;
-        margin-top: 50px;
+        margin-top: 5%;
+        float: left;
     }
     button {
         width: 75px;
@@ -70,20 +83,22 @@
         cursor: pointer;
         font-size: 20px;
         margin-bottom: 50px;
+        float: left;
     }
-    td {
+    .playGround td {
         border: 0px solid black;
         width: 200px;
         height: 200px;
         text-align: center;
     }
-    table {
+    .playGround {
         width: 600px; 
         height: 600px;
         border-spacing: 0px;
         border: 1px solid black;
         background-color: blue;
         margin-top: -85px;
+        float: left;
     }
     .Target {
         display: none;
@@ -91,6 +106,9 @@
 </style>
 
 <script>
+$(document).ready(function(){
+    getHighScores();
+});
 
 var deathSound = document.getElementById("deathSound");
 var axelHallo = document.getElementById("axelHallo");
@@ -116,6 +134,16 @@ $(".playGround").on("click", "td", function (event) {
 
 });
 
+function getHighScores() {
+    $.getJSON('http://localhost/Aim-BackEnd/AimHighscoreGetter.php').then(function(result){
+        console.log(result);
+        $("#HighscoresBody").empty();
+        $.each(result, function( index, value ) {
+            $('#Highscores > tbody:last-child').append('<tr><td>'+ value['UserID'] +'</td><td>'+ value['Username'] +'</td><td>'+ value['Score'] +'</td></tr> ');
+        });
+    });
+}
+
 function GameOver() {
     console.log('GameOver');
     clearInterval(clearVar);
@@ -130,18 +158,21 @@ function GameOver() {
 
     if (score > highScore || highScore == null) {
         highScore = score;
+        //sweetalert
         swal({
         title: 'Put in your Username, Highscore is:' + highScore,
         input: 'text',
         confirmButtonText: 'Send',
-        showLoaderOnConfirm: true
+        showLoaderOnConfirm: false
         }).then((userName) => {
             console.log(userName);
             $.post('http://localhost/Aim-BackEnd/AimDatasaver.php', {
                 'highScore': highScore,
                 'userName': userName['value']
-            });
-        })
+            }).then(function(result){
+                getHighScores();
+            })
+        });
     }
     score = 0;
 }
